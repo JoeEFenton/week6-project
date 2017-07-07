@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "bcrypt": "^1.0.2",
+    "body-parser": "^1.17.2",
+    "e": "0.0.4",
+    "express": "^4.15.3",
+    "language": "^0.4.0",
+    "mongoose": "^4.11.1",
+    "pug": "^2.0.0-rc.2"
+  }
+}

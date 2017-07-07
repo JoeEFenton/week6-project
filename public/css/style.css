@@ -1,0 +1,8 @@
+body {
+    font-family: "Helvetica", Arial, sans-serif;
+    margin: 2em;
+}
+
+.nav-bar a {
+    margin-right: 10px;
+}
