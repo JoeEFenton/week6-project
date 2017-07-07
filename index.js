@@ -33,7 +33,13 @@ app.get('/userHome', function(req, res) {
 });
 
 app.post('/login', function(req, res) {
-    res.send(req.body);
+    user.findOne({ username: req.body.username }, function(err, user) {
+        if (err) res.render('error', {
+            title: error,
+            error: "user is not there, boo."
+        })
+    });
+    user.compare(req.body.password)
 });
 
 app.post('/register', function(req, res) {
@@ -52,7 +58,10 @@ app.post('/register', function(req, res) {
             }
         });
     } else {
-        res.render('error')
+        res.render('error', {
+            title: error,
+            error: 'username or password required'
+        })
     }
 });
 
