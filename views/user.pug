@@ -1,4 +1,25 @@
 extends layout
 
 block content
-    h1 Welcome "User"!
+
+    h1 Welcome, #{username}!
+    a(href="/login") logout
+    a(href="/gab")
+    div(id='gababout')
+        form(action='/gab' method='POST' id='gabform' name='gabform')
+            label(for="gab") Got something to Gab about?:
+            br/
+            textarea(id='gabtext' name='gab' form='gabform' placeholder='Gab about it!')
+            input(type='submit' id='submit')
+            br/
+    
+    div(id='gabs')
+        h2 gabs:
+        ul
+            each gab in gabs
+                - const gabs = gab.gabs
+                - const author = gab.author
+                li #{gabs} - #{author}
+                form(action='/like' method='POST' id='gabform' name='gabform')
+                    input(type='submit' value='like')
+                br/
