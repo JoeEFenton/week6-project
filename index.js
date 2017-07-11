@@ -21,10 +21,6 @@ app.use(bodyParser.json());
 app.use(session({ secret: 'Wubb4 Lubb4', saveUninitialized: true, resave: true }));
 
 var authenticated = function(req, res, next) {
-    // req.session.gab = gab;
-    // req.session.like = like;
-    req.session.user = user;
-    req.session.save();
     if (req.session && req.session.user) {
         return next();
     } else {
@@ -49,9 +45,10 @@ app.get('/register', function(req, res) {
 });
 
 app.get('/user', authenticated, function(req, res) {
-    gab.find({}, function(err, gabs) {
+    let user = req.session.user.username;
+    gab.find({}, null, { sort: { created_at: -1 } }, function(err, gabs) {
         res.render('user', {
-            username: req.session.user.username,
+            username: user,
             gabs: gabs
         });
     })
@@ -65,17 +62,21 @@ app.get('/gab/:id', authenticated, function(req, res) {
     });
 });
 
-app.post('/login', authenticated, function(req, res) {
-    user.findOne({ username: req.body.username }, function(err, foundUser) {
-        if (!foundUser) {
+app.get('/logout', function(req, res) {
+    req.session.user = 0;
+    res.redirect('/');
+});
+
+app.post('/login', function(req, res) {
+    user.findOne({ username: req.body.username }, function(err, user) {
+        if (!user) {
             return res.render('error', {
                 title: 'error',
                 error: "user does not exist punk"
             })
         }
-        if (foundUser.compare(req.body.password)) {
-            req.session.user._id = foundUser._id;
-            req.session.user.username = foundUser.username;
+        if (user.compare(req.body.password)) {
+            req.session.user = user;
             req.session.save();
             res.redirect('/user');
         } else {
@@ -85,7 +86,7 @@ app.post('/login', authenticated, function(req, res) {
             })
         }
     })
-})
+});
 
 app.post('/register', function(req, res) {
     if (req.body.username && req.body.password) {
@@ -99,7 +100,9 @@ app.post('/register', function(req, res) {
                     error: 'user was not created'
                 });
             } else {
-                res.redirect('/')
+                req.session.user = user;
+                req.session.save();
+                res.redirect('/user')
             }
         });
     } else {
@@ -110,11 +113,11 @@ app.post('/register', function(req, res) {
     }
 });
 
-app.post('/gab', authenticated, function(req, res) {
+app.post('/gab', function(req, res) {
     if (req.body && req.body.gab) {
         gab.create({
             gabs: req.body.gab,
-            author: req.session.user._id
+            author: req.session.user.username
         }, function(error, gab) {
             if (error) {
                 res.render('error', {
@@ -135,10 +138,35 @@ app.post('/gab', authenticated, function(req, res) {
 });
 
 
-app.post('/gab', function(req, res) {
-    gab.create({
-        like: req.body.like
+app.post('/like', function(req, res) {
+    gab.findOneAndUpdate({ gabs: req.body.like }, {
+        $push: {
+            like: req.session.user.username
+        }
+    }, function(err, like) {
+        if (err) {
+            res.render('error', {
+                title: 'error',
+                error: 'Unable to like'
+            })
+        } else {
+            res.redirect('/user')
+        }
+    });
+});
+
+app.post('/delete', function(req, res) {
+    gab.findOneAndRemove({ gabs: req.body.delete }, function(err, deleted) {
+        if (err) {
+            res.render('error', {
+                title: 'error',
+                error: 'Unable to delete Gab.'
+            });
+        } else {
+            res.redirect('/user')
+        }
     })
 });
+
 
 app.listen(3000, () => console.log("My Ninja We Init!"));

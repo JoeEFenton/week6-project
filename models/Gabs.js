@@ -6,9 +6,9 @@ var ObjectId = mongoose.Schema.Types.ObjectId;
 
 var gabSchema = new Schema({
     gabs: { type: String, required: true, },
-    author: ObjectId,
+    author: { type: String, required: true, },
     created_at: Date,
-    like: [ObjectId]
+    like: [String]
 });
 
 gabSchema.pre("save", function(next) {
