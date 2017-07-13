@@ -125,7 +125,6 @@ app.post('/gab', function(req, res) {
                     error: 'gab was not created'
                 });
             } else {
-                // req.session.gab = gab;
                 res.redirect('/user');
             }
         });
